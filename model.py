@@ -2,16 +2,19 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 import joblib
 from fastapi import FastAPI
-
+from pydantic import BaseModel 
 
 sample_data = {
-    "rooms": [4,8,12,16,20,24,28,32],
-    "price": [100,200,300,400,500,600,700,800]
-}
+    "rooms":    [4, 8, 12, 16, 20, 24, 28, 32],
+    "fan":      [True, False, False, True, True, True, False, False],
+    "location": [5,10, 2, 5, 0, 3, 1, 2],
+    "age":      [12,24,10, 2, 4,13,14,19],
+    "price":    [350, 420, 500, 850, 780, 950, 900, 1050]
+} 
 
 df = pd.DataFrame(sample_data)
 
-x = df[["rooms"]]
+x = df[["rooms", "fan", "location", "age"]]
 y = df["price"]
 
 model = LinearRegression()
@@ -27,12 +30,22 @@ model = joblib.load("room_bookings.pkl")
 
 app = FastAPI()
 
-@app.post("/predict/{number_of_rooms}") 
-def predict_price(number_of_rooms: int):
+class PredictModel(BaseModel):
+    rooms : int
+    fan : bool 
+    location : int
+    age : int
     
-    prediction = model.predict([[number_of_rooms]]) 
+@app.post("/predict") 
+def predict_price(data :PredictModel):
+    
+    prediction = model.predict([[
+    data.rooms,
+    data.fan,
+    data.location,
+    data.age 
+    ]])   
 
-    return {
-        "number_of_rooms": number_of_rooms,
-        "predicted_price": prediction[0]
+    return { 
+        "predicted_price": float(prediction[0]) 
     }
