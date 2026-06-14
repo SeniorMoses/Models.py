@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 import joblib
 from fastapi import FastAPI
-from pydantic import BaseModel 
+from pydantic import BaseModel, field_validator
 
 sample_data = {
     "rooms":    [4, 8, 12, 16, 20, 24, 28, 32],
@@ -36,6 +36,28 @@ class PredictModel(BaseModel):
     location : int
     age : int
     
+    @field_validator("rooms")
+    @classmethod
+    def validate_rooms(cls, value):
+        if value <= 0:
+            raise ValueError("invalid room info")
+        return value
+            
+    @field_validator("location")
+    @classmethod
+    def validate_location(cls, value):
+        if value < 0 or value > 10:
+            raise ValueError("invalid location info") 
+        return value
+        
+    @field_validator("age")
+    @classmethod
+    def validate_age(cls, value):
+        if value < 0:
+            raise ValueError("invalid age info")
+        return value
+        
+        
 @app.post("/predict") 
 def predict_price(data :PredictModel):
     
@@ -48,4 +70,4 @@ def predict_price(data :PredictModel):
 
     return { 
         "predicted_price": float(prediction[0]) 
-    }
+                       }
