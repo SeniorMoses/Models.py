@@ -67,8 +67,8 @@ def predict_price(data :PredictModel):
     data.location,
     data.age 
     ]])   
-    if float(prediction) <= 0:
+    if prediction[0] <= 0:
         raise ValueError("inaccurate infomation provided")
     return { 
-        "predicted_price": float(prediction[0]) 
+        "predicted_price": round(float(prediction[0]), 2) 
     } 
