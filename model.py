@@ -21,7 +21,7 @@ model = LinearRegression()
 model.fit(x, y)
 
 joblib.dump(model, "room_bookings.pkl")
-
+ 
 print("model learned successfully")
 
 
@@ -67,7 +67,8 @@ def predict_price(data :PredictModel):
     data.location,
     data.age 
     ]])   
-
+    if float(prediction) <= 0:
+        raise ValueError("inaccurate infomation provided")
     return { 
         "predicted_price": float(prediction[0]) 
-                       }
+    } 
